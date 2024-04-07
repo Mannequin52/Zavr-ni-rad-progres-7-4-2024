@@ -1,0 +1,132 @@
+<html>
+
+<head>
+    <title>Brush Maker</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="Anastasija Smolica">
+    <meta name="description" content="Učenje programiranja za početnike iz skriptnih jezika">
+    <meta name="keywords" content="Skriptni jezici, HTML, CSS, učenje, početnici, tečaj, tutorial, web, programiranje">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="hellokitty.css">
+
+</head>
+<body>
+
+<canvas id="myCanvas" width="400" height="400"></canvas>
+
+<select id="brushShape">
+    <option value="round">Round</option>
+    <option value="square">Square</option>
+    <option value="custom1">Custom Brush 1</option>
+    <option value="custom2">Custom Brush 2</option>
+</select>
+
+<button onclick="downloadCanvas()">Download Image</button>
+
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var painting = false; //inicijaliziranje start pos
+
+    canvas.addEventListener("mousedown", startPainting);
+    canvas.addEventListener("mouseup", stopPainting);
+    canvas.addEventListener("mousemove", draw);
+
+    function startPainting(e) {
+        painting = true;
+        draw(e);
+    }
+
+    function stopPainting() {
+        painting = false;
+        ctx.beginPath();
+    }
+
+    // Draw on the canvas
+    function draw(e) {
+        if (!painting) return;
+
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#000";
+
+        ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+
+        if (brushShape === "round") {
+            ctx.lineCap = brushShape;
+            ctx.lineJoin = brushShape;
+        } 
+        if (brushShape === "square"){
+            //..........................................................................................
+        }
+        if(brushShape === "eraser") {
+            ctx.globalCompositeOperation = "destination-out";
+        }
+        else if (brushShape === "custom1" || brushShape === "custom2") {
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.drawImage(brushShape === "custom1" ? customBrush1 : customBrush2, e.clientX - 25, e.clientY - 25, 50, 50);
+        }
+
+        var rect = canvas.getBoundingClientRect();
+        var currentX = e.clientX - rect.left;
+        var currentY = e.clientY - rect.top;
+
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currentX, currentY);
+        ctx.stroke();
+
+        prevX = currentX;
+        prevY = currentY;
+    }
+
+
+    // Set the source of your custom PNG brushes
+    customBrush1.src = 'path/to/customBrush1.png';
+    customBrush2.src = 'path/to/customBrush2.png';
+
+    // Event listeners for mouse actions
+    canvas.addEventListener("mousedown", startPainting);
+    canvas.addEventListener("mouseup", stopPainting);
+    canvas.addEventListener("mousemove", draw);
+
+    // Start drawing
+    function startPainting(e) {
+        painting = true;
+        draw(e);
+
+        // Set initial values for previous mouse positions
+        var rect = canvas.getBoundingClientRect();
+        prevX = e.clientX - rect.left;
+        prevY = e.clientY - rect.top;
+    }
+
+    // Stop drawing
+    function stopPainting() {
+        painting = false;
+        ctx.beginPath();
+    }
+
+
+    // Function to download PNG
+    function downloadCanvas() {
+        var link = document.createElement("a");
+        link.download = "canvas_image.png";
+        link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        link.click();
+    }
+
+    // Update brush shape
+    document.getElementById("brushShape").addEventListener("change", function () {
+        brushShape = this.value;
+    });
+</script>
+
+</body>
+
+</html>
